@@ -7,15 +7,17 @@ import requests
 import yaml
 from urllib.parse import urlparse
 import schedule
-import traceback
 
-# TODO need to handle other request params, headers, body
+
 # TODO improve error handling
 # TODO comments for functions
 # TODO test
 # TODO cool ASCII art on start/finish
 
 test_mode = True
+
+# TODO use this to toggle between the exercise's required output and one I think is prettier
+info_logs = False
 
 should_exit = False
 
@@ -106,6 +108,7 @@ class HealthCheck:
                     self.results[domain]["UP"] += 1
                 else:
                     self.results[domain]["requests"] += 1
+                    logging.error(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
                     # print(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
                     # print(f"\nRequest details:")
                     # print(f"  URL: {response.request.url}")
@@ -115,7 +118,7 @@ class HealthCheck:
 
             # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider. 
             except Exception as e:
-                print(f"Error: {e} {endpoint}")                
+                logging.error(f"Error: {e}")                
 
         self.run_count += 1
 
@@ -134,6 +137,13 @@ def main():
         help="How often the health check should run in seconds.",
         default=15,
     )
+    parser.add_argument(
+        "--info-logs",
+        type=bool,
+        help="More output for the curious.",
+        default=False,
+    )
+
 
     args = parser.parse_args()
 
@@ -142,10 +152,13 @@ def main():
 
     # Logging setup borrowed from Google
     logger = logging.getLogger(__name__)
-    logging.basicConfig(level=logging.INFO)
     ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
 
+    if args.info_logs:
+        print("INFO LOGS ENABLED")
+        logging.basicConfig(level=logging.INFO)
+        ch.setLevel(logging.INFO)
+    
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
