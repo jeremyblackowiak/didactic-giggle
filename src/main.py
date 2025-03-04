@@ -1,15 +1,22 @@
 import os
 import sys
+import signal
 import argparse
 from datetime import datetime
 import logging
 import requests
 import yaml
 from tld import get_tld
+import schedule
 
 test_mode = True
 
-# TODO: Need to handle the time thing
+should_exit = False
+
+def exit_handler(sig, frame):
+    print("Canceling after interval run...")
+    global should_exit
+    should_exit = True
 
 class HealthCheck:
     def __init__(self, input_file, test_interval):
@@ -17,6 +24,7 @@ class HealthCheck:
         self.test_interval = test_interval
         self.endpoints = self.collect_endpoints()
         self.results = {}
+        self.run_count = 0
 
     def validate_input(self, endpoint_config_item):
         # check format of input file
@@ -56,13 +64,15 @@ class HealthCheck:
 
 
     def begin_schedule(self):
-        # handle time
 
-        mid_interval = True
+        schedule.every(self.test_interval).seconds.do(self.begin_health_check)
 
-        while mid_interval:
-            print(f"Checking endpoints every {self.test_interval} seconds...")
-            self.begin_health_check()
+        while not should_exit:
+            schedule.run_pending()
+
+        print("Here's what you ordered")
+        print(self.results)
+        print(self.run_count)
 
     
     def begin_health_check(self):
@@ -88,7 +98,7 @@ class HealthCheck:
             except Exception as e:
                 print(f"Error: {e}")
 
-        # print(f"Results: {self.results}")
+        self.run_count += 1
 
 def main():
     parser = argparse.ArgumentParser(description="Process my inputs!")
@@ -107,6 +117,9 @@ def main():
     )
 
     args = parser.parse_args()
+
+    signal.signal(signal.SIGINT, exit_handler)
+    signal.signal(signal.SIGTERM, exit_handler)
 
     # Create the health check object
     health_check = HealthCheck(args.endpoints, args.test_interval)
