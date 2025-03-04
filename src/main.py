@@ -7,11 +7,13 @@ import requests
 import yaml
 from urllib.parse import urlparse
 import schedule
+import traceback
 
 # TODO need to handle other request params, headers, body
 # TODO improve error handling
 # TODO comments for functions
 # TODO test
+# TODO cool ASCII art on start/finish
 
 test_mode = True
 
@@ -88,24 +90,32 @@ class HealthCheck:
         logging.info(f"Starting health check run {(self.run_count + 1)}")
 
         for endpoint in self.endpoints:
-            name = endpoint["name"]
             url = endpoint["url"]
+            method = endpoint.get("method", "GET")
+            headers = endpoint.get("headers")
+            body = endpoint.get("body")
             domain = self.get_domain(url)
+            
 
             try:
-                response = requests.get(url)
+                response = requests.request(method, url, headers=headers, data=body)
                 latency = response.elapsed.total_seconds() * 1000
-                # TODO all 2xx codes
-                if (response.status_code == 200) and (latency < 500):
+                
+                if (200 <= response.status_code <= 299) and (latency < 500):
                     self.results[domain]["requests"] += 1
                     self.results[domain]["UP"] += 1
                 else:
                     self.results[domain]["requests"] += 1
-                    self.results[domain]["UP"] += 1
+                    # print(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
+                    # print(f"\nRequest details:")
+                    # print(f"  URL: {response.request.url}")
+                    # print(f"  Method: {response.request.method}")
+                    # print(f"  Headers: {response.request.headers}")
+                    # print(f"  Body: {response.request.body}")
 
             # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider. 
             except Exception as e:
-                print(f"Error: {e}")
+                print(f"Error: {e} {endpoint}")                
 
         self.run_count += 1
 
