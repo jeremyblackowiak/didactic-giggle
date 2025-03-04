@@ -14,6 +14,7 @@ import schedule
 # TODO use config.py? 
 # TODO split some stuff out into separate files, potentially
 # TODO test
+# TODO run via Docker container
 # TODO cool ASCII art on start/finish
 
 test_mode = True
