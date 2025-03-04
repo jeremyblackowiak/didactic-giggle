@@ -9,6 +9,8 @@ from tld import get_tld
 
 test_mode = True
 
+# TODO: Need to handle the time thing
+
 class HealthCheck:
     def __init__(self, input_file, test_interval):
         self.input_file = input_file
@@ -53,6 +55,16 @@ class HealthCheck:
 
 
 
+    def begin_schedule(self):
+        # handle time
+
+        mid_interval = True
+
+        while mid_interval:
+            print(f"Checking endpoints every {self.test_interval} seconds...")
+            self.begin_health_check()
+
+    
     def begin_health_check(self):
         print(f"OK I'm checking {self.endpoints}")
 
@@ -98,7 +110,7 @@ def main():
 
     # Create the health check object
     health_check = HealthCheck(args.endpoints, args.test_interval)
-    health_check.begin_health_check()
+    health_check.begin_schedule()
 
 
 if __name__ == "__main__":
