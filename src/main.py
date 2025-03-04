@@ -1,7 +1,7 @@
 import os
 import sys
 import argparse
-import time
+from datetime import datetime
 import logging
 import requests
 import yaml
@@ -11,6 +11,7 @@ class HealthCheck:
         self.input_file = input_file
         self.test_interval = test_interval
         self.endpoints = self.collect_endpoints()
+        self.results = {}
 
     def validate_input(self, endpoint_config_item):
         # check format of input file
@@ -42,6 +43,22 @@ class HealthCheck:
 
     def begin_health_check(self):
         print(f"OK I'm checking {self.endpoints}")
+
+        for endpoint in self.endpoints:
+            name = endpoint["name"]
+            url = endpoint["url"]
+
+            try:
+                response = requests.get(url)
+                latency = response.elapsed.total_seconds() * 1000
+                # TODO all 2xx codes
+                if (response.status_code == 200) and (response.elapsed ):
+                    self.results[name] = "UP"
+                else:
+                    self.results[name] = "DOWN"
+
+            except Exception as e:
+                print(f"Error: {e}")
 
 
 def main():
