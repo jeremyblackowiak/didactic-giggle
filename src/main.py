@@ -11,6 +11,8 @@ import schedule
 
 # TODO improve error handling - still need more cleanup, logging too.
 # TODO comments for functions
+# TODO use config.py? 
+# TODO split some stuff out into separate files, potentially
 # TODO test
 # TODO cool ASCII art on start/finish
 
