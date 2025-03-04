@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import schedule
 
 
-# TODO improve error handling
+# TODO improve error handling - still need more cleanup, logging too. 
 # TODO comments for functions
 # TODO test
 # TODO cool ASCII art on start/finish
@@ -81,7 +81,10 @@ class HealthCheck:
         schedule.every(self.test_interval).seconds.do(self.begin_health_check)
 
         while not should_exit:
-            schedule.run_pending()
+            try:
+                schedule.run_pending()
+            except Exception as e:
+                raise Exception(f"{e}") 
 
         print("Here's what you ordered")
         self.prepare_results()
@@ -99,26 +102,17 @@ class HealthCheck:
             domain = self.get_domain(url)
             
 
-            try:
-                response = requests.request(method, url, headers=headers, data=body)
-                latency = response.elapsed.total_seconds() * 1000
-                
-                if (200 <= response.status_code <= 299) and (latency < 500):
-                    self.results[domain]["requests"] += 1
-                    self.results[domain]["UP"] += 1
-                else:
-                    self.results[domain]["requests"] += 1
-                    logging.error(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
-                    # print(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
-                    # print(f"\nRequest details:")
-                    # print(f"  URL: {response.request.url}")
-                    # print(f"  Method: {response.request.method}")
-                    # print(f"  Headers: {response.request.headers}")
-                    # print(f"  Body: {response.request.body}")
+            response = requests.request(method, url, headers=headers, data=body)
+            latency = response.elapsed.total_seconds() * 1000
+            
+            if (200 <= response.status_code <= 299) and (latency < 500):
+                self.results[domain]["requests"] += 1
+                self.results[domain]["UP"] += 1
+            else:
+                self.results[domain]["requests"] += 1
+                logging.warning(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
 
-            # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider. 
-            except Exception as e:
-                logging.error(f"Error: {e}")                
+            # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider.              
 
         self.run_count += 1
 
