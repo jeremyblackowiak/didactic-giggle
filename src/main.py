@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 import schedule
 
 
-# TODO improve error handling - still need more cleanup, logging too. 
+# TODO improve error handling - still need more cleanup, logging too.
 # TODO comments for functions
 # TODO test
 # TODO cool ASCII art on start/finish
@@ -21,10 +21,12 @@ info_logs = False
 
 should_exit = False
 
+
 def exit_handler(sig, frame):
     print("Canceling after interval run...")
     global should_exit
     should_exit = True
+
 
 class HealthCheck:
     def __init__(self, input_file, test_interval):
@@ -39,17 +41,17 @@ class HealthCheck:
             raise ValueError("Endpoint name is required")
         if "url" not in endpoint_config_item:
             raise ValueError("Endpoint URL is required")
-        
+
     def get_domain(self, url):
         # extract domain from URL
         # domain_object = get_tld(url, as_object=True)
         # domain = domain_object.subdomain + "." + domain_object.fld
 
         domain_object = urlparse(url)
-        domain = domain_object.netloc 
+        domain = domain_object.netloc
         # TODO this should probably be separated out into another function. Not clear that this function is also creating the dict entry.
         self.results.setdefault(domain, {"requests": 0, "UP": 0})
-        
+
         return domain
 
     def collect_endpoints(self):
@@ -84,13 +86,12 @@ class HealthCheck:
             try:
                 schedule.run_pending()
             except Exception as e:
-                raise Exception(f"{e}") 
+                raise Exception(f"{e}")
 
         print("Here's what you ordered")
         self.prepare_results()
         print(self.run_count)
 
-    
     def begin_health_check(self):
         logging.info(f"Starting health check run {(self.run_count + 1)}")
 
@@ -100,21 +101,23 @@ class HealthCheck:
             headers = endpoint.get("headers")
             body = endpoint.get("body")
             domain = self.get_domain(url)
-            
 
             response = requests.request(method, url, headers=headers, data=body)
             latency = response.elapsed.total_seconds() * 1000
-            
+
             if (200 <= response.status_code <= 299) and (latency < 500):
                 self.results[domain]["requests"] += 1
                 self.results[domain]["UP"] += 1
             else:
                 self.results[domain]["requests"] += 1
-                logging.warning(f"DOWN because {url} returned {response.status_code} with latency {latency}ms")
+                logging.warning(
+                    f"DOWN because {url} returned {response.status_code} with latency {latency}ms"
+                )
 
-            # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider.              
+            # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider.
 
         self.run_count += 1
+
 
 def main():
     parser = argparse.ArgumentParser(description="Process my inputs!")
@@ -138,7 +141,6 @@ def main():
         default=False,
     )
 
-
     args = parser.parse_args()
 
     signal.signal(signal.SIGINT, exit_handler)
@@ -152,8 +154,10 @@ def main():
         print("INFO LOGS ENABLED")
         logging.basicConfig(level=logging.INFO)
         ch.setLevel(logging.INFO)
-    
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
