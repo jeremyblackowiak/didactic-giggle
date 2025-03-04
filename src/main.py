@@ -12,10 +12,13 @@ class HealthCheck:
         self.test_interval = test_interval
         self.endpoints = self.collect_endpoints()
 
-    def validate_input(self):
+    def validate_input(self, endpoint_config_item):
+        # check format of input file
         print("Validating input...")
-        print(f"Config file: {self.input_file}")
-        print(f"Test interval: {self.test_interval}")
+        if "name" not in endpoint_config_item:
+            raise ValueError("Endpoint name is required")
+        if "url" not in endpoint_config_item:
+            raise ValueError("Endpoint URL is required")
 
     def collect_endpoints(self):
         print("Collecting endpoints...")
@@ -23,14 +26,22 @@ class HealthCheck:
             with open(self.input_file, "r") as endpoints_file:
                 # load yaml
                 endpoints_yaml = yaml.safe_load(endpoints_file)
-                print(endpoints_yaml)
+
+                # now need to parse it into something useful
+                for endpoint_config_item in endpoints_yaml:
+                    self.validate_input(endpoint_config_item)
+
+                # endpoints_list = endpoints_yaml
+                # print(endpoints_list)
+                return endpoints_yaml
+
         except Exception as e:
             logging.error(f"error: {e}")
             sys.exit(1)
 
 
     def begin_health_check(self):
-        print("OK I'm checking")
+        print(f"OK I'm checking {self.endpoints}")
 
 
 def main():
