@@ -9,6 +9,10 @@ import yaml
 from tld import get_tld
 import schedule
 
+# TODO need to handle other request params, headers, body
+# TODO improve error handling
+# TODO comments for functions
+
 test_mode = True
 
 should_exit = False
@@ -27,8 +31,6 @@ class HealthCheck:
         self.run_count = 0
 
     def validate_input(self, endpoint_config_item):
-        # check format of input file
-        print("Validating input...")
         if "name" not in endpoint_config_item:
             raise ValueError("Endpoint name is required")
         if "url" not in endpoint_config_item:
@@ -43,7 +45,7 @@ class HealthCheck:
         return domain
 
     def collect_endpoints(self):
-        print("Collecting endpoints...")
+        logging.info(f"Collecting endpoints from {self.input_file}")
         try:
             with open(self.input_file, "r") as endpoints_file:
                 # load yaml
@@ -53,15 +55,18 @@ class HealthCheck:
                 for endpoint_config_item in endpoints_yaml:
                     self.validate_input(endpoint_config_item)
 
-                # endpoints_list = endpoints_yaml
-                # print(endpoints_list)
                 return endpoints_yaml
 
         except Exception as e:
             logging.error(f"error: {e}")
             sys.exit(1)
 
-
+    def prepare_results(self):
+        for domain in self.results:
+            total_requests = self.results[domain]["requests"]
+            up_requests = self.results[domain]["UP"]
+            percentage = (up_requests / total_requests) * 100
+            print(f"{domain} has {round(percentage)}% availability percentage")
 
     def begin_schedule(self):
 
@@ -71,12 +76,12 @@ class HealthCheck:
             schedule.run_pending()
 
         print("Here's what you ordered")
-        print(self.results)
+        self.prepare_results()
         print(self.run_count)
 
     
     def begin_health_check(self):
-        print(f"OK I'm checking {self.endpoints}")
+        logging.info(f"Starting health check run {self.run_count}")
 
         for endpoint in self.endpoints:
             name = endpoint["name"]
@@ -120,6 +125,16 @@ def main():
 
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
+
+    # Logging setup borrowed from Google
+    logger = logging.getLogger(__name__)
+    logging.basicConfig(level=logging.INFO)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
 
     # Create the health check object
     health_check = HealthCheck(args.endpoints, args.test_interval)
