@@ -11,6 +11,7 @@ requests = "^2.32.3"
 PyYaml = "^6.0.2"
 tld = "^0.13"
 schedule = "^1.2.2"
+urllib3 = "^2.3.0"
 black = "^24.4.2"
 
 [build-system]

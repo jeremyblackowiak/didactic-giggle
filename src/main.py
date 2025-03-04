@@ -1,4 +1,3 @@
-import os
 import sys
 import signal
 import argparse
@@ -6,12 +5,13 @@ from datetime import datetime
 import logging
 import requests
 import yaml
-from tld import get_tld
+from urllib.parse import urlparse
 import schedule
 
 # TODO need to handle other request params, headers, body
 # TODO improve error handling
 # TODO comments for functions
+# TODO test
 
 test_mode = True
 
@@ -38,8 +38,12 @@ class HealthCheck:
         
     def get_domain(self, url):
         # extract domain from URL
-        domain = get_tld(url, as_object=True).domain
-        # TODO this should probably be separated out into another function. Not clear as is. 
+        # domain_object = get_tld(url, as_object=True)
+        # domain = domain_object.subdomain + "." + domain_object.fld
+
+        domain_object = urlparse(url)
+        domain = domain_object.netloc 
+        # TODO this should probably be separated out into another function. Not clear that this function is also creating the dict entry.
         self.results.setdefault(domain, {"requests": 0, "UP": 0})
         
         return domain
@@ -81,7 +85,7 @@ class HealthCheck:
 
     
     def begin_health_check(self):
-        logging.info(f"Starting health check run {self.run_count}")
+        logging.info(f"Starting health check run {(self.run_count + 1)}")
 
         for endpoint in self.endpoints:
             name = endpoint["name"]
