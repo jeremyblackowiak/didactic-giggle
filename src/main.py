@@ -5,6 +5,9 @@ from datetime import datetime
 import logging
 import requests
 import yaml
+from tld import get_tld
+
+test_mode = True
 
 class HealthCheck:
     def __init__(self, input_file, test_interval):
@@ -20,6 +23,14 @@ class HealthCheck:
             raise ValueError("Endpoint name is required")
         if "url" not in endpoint_config_item:
             raise ValueError("Endpoint URL is required")
+        
+    def get_domain(self, url):
+        # extract domain from URL
+        domain = get_tld(url, as_object=True).domain
+        # TODO this should probably be separated out into another function. Not clear as is. 
+        self.results.setdefault(domain, {"requests": 0, "UP": 0})
+        
+        return domain
 
     def collect_endpoints(self):
         print("Collecting endpoints...")
@@ -41,25 +52,31 @@ class HealthCheck:
             sys.exit(1)
 
 
+
     def begin_health_check(self):
         print(f"OK I'm checking {self.endpoints}")
 
         for endpoint in self.endpoints:
             name = endpoint["name"]
             url = endpoint["url"]
+            domain = self.get_domain(url)
 
             try:
                 response = requests.get(url)
                 latency = response.elapsed.total_seconds() * 1000
                 # TODO all 2xx codes
-                if (response.status_code == 200) and (response.elapsed ):
-                    self.results[name] = "UP"
+                if (response.status_code == 200) and (latency < 500):
+                    self.results[domain]["requests"] += 1
+                    self.results[domain]["UP"] += 1
                 else:
-                    self.results[name] = "DOWN"
+                    self.results[domain]["requests"] += 1
+                    self.results[domain]["UP"] += 1
 
+            # TODO couldn't an error in request be considered a "DOWN" in some cases? Need to consider. 
             except Exception as e:
                 print(f"Error: {e}")
 
+        # print(f"Results: {self.results}")
 
 def main():
     parser = argparse.ArgumentParser(description="Process my inputs!")
