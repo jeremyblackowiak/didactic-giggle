@@ -2,6 +2,8 @@
 
 Welcome to `didactic-giggle`! This project is a take-home exercise with a goal of creating an HTTP endpoint "health checker," with various conditions included.
 
+The program takes a YAML file of URL endpoints as an input, then every 15 seconds performs an HTTP request. It collects the results of the requests, then on exit presents the results as an availability percentage per domain found in the input file. See below for usage instructions, and see function comments for details.
+
 ## Overview
 
 ### Tools Used
@@ -21,7 +23,7 @@ Welcome to `didactic-giggle`! This project is a take-home exercise with a goal o
 - **TODO Items:** Tackle the remaining #TODO comments in `main.py`.
 - **Improved Logging:** Color and prettify output. Enhance logging to include more detailed information.
 - **Error Handling:** Improve error handling, especially around the HTTP call block.
-- **Orchestrate with NX:** Use NX.dev to orchestrate the operations of the repo, set up for a single command.
+- **Orchestrate with NX:** Use NX.dev to orchestrate the operations of the repo, remove the need for multiple commands to operate the program.
 - **Docker Support:** Create a Dockerfile to run the script in a container.
 - **Enhanced Validation:** Add more validation for the input YAML configuration file.
 - **Configuration Options:** Allow more configuration options for the health checks.
@@ -39,9 +41,9 @@ Before you begin, ensure you have the following:
 
 1. **Clone the repository**
 
-     Use your preferred method to clone the repository to your local machine.
+     Use your preferred method to clone the repository to your local machine. Run the remaining commands from a terminal within the repository root directory.
 
-2. Run `asdf install`.
+2. Run `asdf plugin add python`, `asdf plugin add poetry`, and `asdf install`.
 
 3. Run `poetry install`.
 
