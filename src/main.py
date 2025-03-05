@@ -5,6 +5,7 @@ HTTP Heartbeat Monitor
 A tool for monitoring the health of HTTP endpoints defined in a YAML file.
 Performs health checks at regular intervals and tracks availability percentages by domain.
 """
+import os
 import sys
 import signal
 import argparse
@@ -16,7 +17,7 @@ from urllib.parse import urlparse
 import schedule
 import contextlib
 from collections import defaultdict
-from config import DEFAULT_TEST_INTERVAL, setup_logging
+from config import DEFAULT_TEST_INTERVAL, setup_logging, DEFAULT_ENDPOINT_FILE_PATH
 
 
 # TODO test file
@@ -226,21 +227,20 @@ def parse_args():
     parser.add_argument(
         "--endpoints",
         type=str,
-        required=True,
-        # TODO import OS and set a default absolute path to the sample_input.yaml
-        help="Path to YAML file with endpoints to monitor",
+        default=DEFAULT_ENDPOINT_FILE_PATH,
+        help=f"Path to YAML file with endpoints to monitor (default: {DEFAULT_ENDPOINT_FILE_PATH}).",
     )
     parser.add_argument(
         "--test-interval",
         type=int,
-        help=f"Interval between health checks in seconds (default: {DEFAULT_TEST_INTERVAL})",
+        help=f"Interval between health checks in seconds (default: {DEFAULT_TEST_INTERVAL}).",
         default=DEFAULT_TEST_INTERVAL,
     )
     # TODO Now that I've added DEBUG logs, change this to a log level arg, not just a boolean toggle for info.
     parser.add_argument(
         "--info-logs",
         action="store_true",
-        help="Enable verbose informational logging",
+        help="Enable informational logging.",
         default=False,
     )
 

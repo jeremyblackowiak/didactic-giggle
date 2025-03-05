@@ -19,8 +19,8 @@ Welcome to `didactic-giggle`! This project is a take-home exercise with a goal o
 ### What I'd Do With More Time
 
 - **TODO Items:** Tackle the remaining #TODO comments in main.py.
-- **Improved Logging:** Enhancing logging to include more detailed information.
-- **Error Handling:** Improving error handling to ensure the script is robust.
+- **Improved Logging:** Color and prettify output. Enhancing logging to include more detailed information.
+- **Error Handling:** Improving error handling, especially around the http call block.
 - **Orchestrate with NX:** Use NX.dev to orchestrate the operations of the repo, set up for a single command.
 - **Docker Support:** Create a Dockerfile to run the script in a container.
 - **Enhanced Validation:** Add more validation for the input YAML configuration file.
@@ -45,7 +45,7 @@ Before you begin, ensure you have the following:
 
 3. Run `poetry install`.
 
-4. Run the script with the following command:
+4. Run the script with the following command. Exit with `Ctrl+C` to see results.
 
    ```bash
    poetry run python src/main.py
@@ -62,7 +62,13 @@ Before you begin, ensure you have the following:
 
 | Argument         | Type   | Description                                                                 | Default Value               |
 |------------------|--------|-----------------------------------------------------------------------------|-----------------------------|
-| `--endpoints`    | `str`  | Absolute to YAML file with endpoints to monitor                                  | Required                    |
+| `--endpoints`    | `str`  | Absolute path to YAML file with endpoints to monitor                                  | `src/sample_input.yaml`                    |
 | `--test-interval`| `int`  | Interval between health checks in seconds                                    | `15`     |
 | `--info-logs`    | `bool` | Enable output of info logs during program run                                         | `False`                     |
 
+### Contributing
+
+#### Commands
+
+- `poetry run black .` Lint the Python files.
+- `poetry run pytest` Run the tests in the tests/ directory.
