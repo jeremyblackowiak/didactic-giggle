@@ -48,12 +48,12 @@ Before you begin, ensure you have the following:
 4. Run the script with the following command. Exit with `Ctrl+C` to see results.
 
    ```bash
-   poetry run python src/main.py
+   poetry run python src/main.py --endpoints "src/sample_input.yaml"
 
 5. (Optional) Run the script with custom input arguments.
 
-    - Update the `src/sample_input.yaml` file with your endpoints to monitor. Note that each entry will need to include both "name" and "url" field values, like the template. 
-    - Use the `--endpoints`, `--test-interval`, `--info-logs` flags to customize your command. See table below for details.
+    - Update the `src/sample_input.yaml` file with your endpoints to monitor, or create your own file. Note that each entry will need to include both "name" and "url" field values, like the template. 
+    - Use the `--test-interval`, `--info-logs` flags to customize your command. See table below for details.
 
     ```bash
     poetry run python src/main.py --endpoints "/home/user/projects/didactic-giggle/src/sample_input.yaml" --test-interval 5 --info-logs
@@ -62,7 +62,7 @@ Before you begin, ensure you have the following:
 
 | Argument         | Type   | Description                                                                 | Default Value               |
 |------------------|--------|-----------------------------------------------------------------------------|-----------------------------|
-| `--endpoints`    | `str`  | Absolute path to YAML file with endpoints to monitor                                  | `src/sample_input.yaml`                    |
+| `--endpoints`    | `str`  | Path to YAML file with endpoints to monitor                                  | Required                    |
 | `--test-interval`| `int`  | Interval between health checks in seconds                                    | `15`     |
 | `--info-logs`    | `bool` | Enable output of info logs during program run                                         | `False`                     |
 

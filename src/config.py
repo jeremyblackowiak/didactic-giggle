@@ -12,7 +12,7 @@ DEFAULT_TEST_INTERVAL = 15
 DEFAULT_REQUEST_TIMEOUT = 10
 DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 DEFAULT_LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-DEFAULT_ENDPOINT_FILE_PATH = os.path.join(os.path.dirname(__file__), "sample_input.yaml")
+# DEFAULT_ENDPOINT_FILE_PATH = os.path.join(os.path.dirname(__file__), "sample_input.yaml")
 
 
 def setup_logging(verbose: bool = False) -> None:

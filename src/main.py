@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 import schedule
 import contextlib
 from collections import defaultdict
-from config import DEFAULT_TEST_INTERVAL, setup_logging, DEFAULT_ENDPOINT_FILE_PATH
+from config import DEFAULT_TEST_INTERVAL, setup_logging
 
 
 # TODO test file
@@ -156,6 +156,9 @@ class HealthCheck:
 
         logging.info(f"Starting health checks every {self.test_interval} seconds")
 
+        # Run the first health check immediately
+        self.begin_health_check()
+
         # Schedule library is new to me, very cool. Handles the queueing/timing.
         schedule.every(self.test_interval).seconds.do(self.begin_health_check)
 
@@ -227,8 +230,8 @@ def parse_args():
     parser.add_argument(
         "--endpoints",
         type=str,
-        default=DEFAULT_ENDPOINT_FILE_PATH,
-        help=f"Path to YAML file with endpoints to monitor (default: {DEFAULT_ENDPOINT_FILE_PATH}).",
+        required=True,
+        help="Path to YAML file with endpoints to monitor",
     )
     parser.add_argument(
         "--test-interval",
