@@ -39,6 +39,7 @@ should_exit = False
 
 def exit_handler(sig, frame):
     """Handle exit signals (SIGINT, SIGTERM) gracefully."""
+    # Basically, a user attempt to exit will not exit immediately, instead just updates a flag to trigger the discontinuation of the check loop.
     print("Canceling after current interval run completes...")
     global should_exit
     should_exit = True
@@ -46,6 +47,7 @@ def exit_handler(sig, frame):
 @contextlib.contextmanager
 def monitor_session():
     """Context manager for clean setup and teardown of monitoring. New feature for me."""
+    # Capture exit signals and route to handler.
     signal.signal(signal.SIGINT, exit_handler)
     signal.signal(signal.SIGTERM, exit_handler)
     try:
@@ -90,6 +92,7 @@ class HealthCheck:
         Validate required fields are present in the endpoint configuration.
         """
 
+        # TODO The exercise was generous in not asking for a lot of validation, but it would be good to add more.
         if "name" not in endpoint_config_item:
             raise ValueError("Endpoint name is required")
         if "url" not in endpoint_config_item:
@@ -99,6 +102,8 @@ class HealthCheck:
         """
         Extract domain from URL.
         """
+        
+        # TODO The exercise's example output includes the subdomain, but the prompt only asks for the domain. Need to make a decision here. 
         domain_object = urlparse(url)
         return domain_object.netloc
 
@@ -129,10 +134,13 @@ class HealthCheck:
         """
         Calculate and display availability percentages for all domains on exit.
         """
+        
+        # For each domain we saw, calculate the percentage of successful requests.
         for domain in self.results:
             total_requests = self.results[domain]["requests"]
             up_requests = self.results[domain]["UP"]
             percentage = (up_requests / total_requests) * 100
+            # Exercise asked for this specific output format. 
             print(f"{domain} has {round(percentage)}% availability percentage")
 
     def begin_schedule(self):
@@ -146,6 +154,7 @@ class HealthCheck:
         schedule.every(self.test_interval).seconds.do(self.begin_health_check)
 
         # Runs the "schedule" until my should_exit condition is met. 
+        # Right, should_exit is only set to True on SIGINT or SIGTERM, so it will run indefinitely.
         while not should_exit:
             try:
                 schedule.run_pending()
@@ -162,27 +171,40 @@ class HealthCheck:
         """
         logging.info(f"Starting health check run {(self.run_count + 1)}")
 
+        # For each endpoint, grab the relevant field values and make an HTTP request.
         for endpoint in self.endpoints:
             url = endpoint["url"]
             method = endpoint.get("method", "GET")
             headers = endpoint.get("headers")
             body = endpoint.get("body")
+            # Grab the domain from the URL, since we're tracking availability by domain.
             domain = self.get_domain(url)
 
             try:
+                # Perform the request, capture response for analysis.
                 response = requests.request(method, url, headers=headers, data=body)
+                # The latency property comes as a timedelta object, so I have to convert it to milliseconds.
                 latency = response.elapsed.total_seconds() * 1000
 
+                # If it's a 2xx and latency under 500ms, we call that a success. 
                 if (200 <= response.status_code <= 299) and (latency < 500):
+                    # We're counting total requests so we can do the percentage math later.
                     self.results[domain]["requests"] += 1
                     self.results[domain]["UP"] += 1
+                    logging.debug(f"UP: {url} - {response.status_code} - {latency}ms")
+                    logging.debug(f"Request sent: {response.request}")
+                    logging.debug(f"Response received: {response.json}")
+                    logging.debug(response.json)
+                # Anything else is a failure, an implied "DOWN".
                 else:
+                    # Only bump the total requests, no need to track a "DOWN" count.
                     self.results[domain]["requests"] += 1
-                    logging.warning(
-                        f"DOWN because {url} returned {response.status_code} with latency {latency}ms"
-                    )
+                    logging.debug(f"DOWN: {url} - {response.status_code} - {latency}ms")
+                    logging.debug(f"Request sent: {response.request}")
+                    logging.debug(f"Response received: {response.json}")
+                    logging.debug(response.json)
 
-            # TODO I feel like this could fail in some kind of way that I might not want to record as a request. 
+            # TODO Registering any exception as a "DOWN" request means absolute faith that my code isn't the failure point. Should be reworked. 
             except Exception as e:
                 self.results[domain]["requests"] += 1
                 logging.error(f"ERROR: {url} - {str(e)}")
@@ -193,9 +215,6 @@ class HealthCheck:
 def parse_args():
     """
     Parse command line arguments.
-    
-    Returns:
-        Parsed arguments.
     """
     parser = argparse.ArgumentParser(description="HTTP Endpoint Health Monitor")
     parser.add_argument(
@@ -228,13 +247,13 @@ def main():
     # Setup logging
     setup_logging(args.info_logs)
 
+    # Use context manager for setup/cleanup. New to me! Very cool. 
     with monitor_session():
-        # Create and run health check monitor
+        
+        # Init the health check class, which parses the YAML file input and does further setup.
         health_check = HealthCheck(args.endpoints, args.test_interval)
+        # The beating heart (pun intended) of the script.
         health_check.begin_schedule()
-    
-    return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())
