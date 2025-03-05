@@ -214,6 +214,7 @@ class HealthCheck:
                     logging.debug(response.json)
 
             # TODO Registering any exception as a "DOWN" request means absolute faith that my code isn't the failure point. Should be reworked.
+            # TODO How to handle request timeouts? 
             except Exception as e:
                 self.results[domain]["requests"] += 1
                 logging.error(f"ERROR: {url} - {str(e)}")
