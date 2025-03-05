@@ -16,14 +16,12 @@ Welcome to `didactic-giggle`! This project is a take-home exercise with a goal o
     - **Logbook:** For logging.
     - **Pytest** For unit tests. 
 
-### Things I'm Still Figuring Out
-
-- **Edge Cases:** Handling various edge cases such as bad URLs, slow endpoints, and down endpoints.
-- **Improved Logging:** Enhancing logging to include more detailed information.
-- **Error Handling:** Improving error handling to ensure the script is robust.
-
 ### What I'd Do With More Time
 
+- **TODO Items:** Tackle the remaining #TODO comments in main.py.
+- **Improved Logging:** Enhancing logging to include more detailed information.
+- **Error Handling:** Improving error handling to ensure the script is robust.
+- **Orchestrate with NX:** Use NX.dev to orchestrate the operations of the repo, set up for a single command.
 - **Docker Support:** Create a Dockerfile to run the script in a container.
 - **Enhanced Validation:** Add more validation for the input YAML configuration file.
 - **Configuration Options:** Allow more configuration options for the health checks.
@@ -32,10 +30,10 @@ Welcome to `didactic-giggle`! This project is a take-home exercise with a goal o
 
 Before you begin, ensure you have the following:
 
-- **Local Machine:** A *nix machine with Docker for Desktop or Rancher installed, if running locally.
+- **Local Machine:** A *nix machine or Windows with WSL. Anything that can run ASDF. 
 - **ASDF:** Installed. Follow the instructions on the [ASDF GitHub page](https://github.com/asdf-vm/asdf) to install it. Using homebrew, you can run `brew install asdf`. 
 
-## First Time Setup, Metadata and Infrastructure
+## How To Use
 
 ### Basic Setup
 
@@ -47,9 +45,24 @@ Before you begin, ensure you have the following:
 
 3. Run `poetry install`.
 
-4. Update the `src/sample_input.yaml` file with your endpoints to monitor.
-
-5. Run the script with the following command:
+4. Run the script with the following command:
 
    ```bash
-   poetry run python src/main.py --endpoints src/sample_input.yaml
+   poetry run python src/main.py
+
+5. (Optional) Run the script with custom input arguments.
+
+    - Update the `src/sample_input.yaml` file with your endpoints to monitor. Note that each entry will need to include both "name" and "url" field values, like the template. 
+    - Use the `--endpoints`, `--test-interval`, `--info-logs` flags to customize your command. See table below for details.
+
+    ```bash
+    poetry run python src/main.py --endpoints "/home/user/projects/didactic-giggle/src/sample_input.yaml" --test-interval 5 --info-logs
+
+### Input Argument Options
+
+| Argument         | Type   | Description                                                                 | Default Value               |
+|------------------|--------|-----------------------------------------------------------------------------|-----------------------------|
+| `--endpoints`    | `str`  | Absolute to YAML file with endpoints to monitor                                  | Required                    |
+| `--test-interval`| `int`  | Interval between health checks in seconds                                    | `15`     |
+| `--info-logs`    | `bool` | Enable output of info logs during program run                                         | `False`                     |
+
