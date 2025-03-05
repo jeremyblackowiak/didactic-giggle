@@ -20,7 +20,7 @@ from config import DEFAULT_TEST_INTERVAL, setup_logging
 
 
 # TODO test file
-# TODO check that info logs will work when asked for. 
+# TODO check that info logs will work when asked for.
 # TODO run via Docker container
 # TODO edge cases. What if the URL is bad? What if the endpoint is down? What if the endpoint is slow? What if it has 0 entries?
 
@@ -39,6 +39,7 @@ def exit_handler(sig, frame):
     global should_exit
     should_exit = True
 
+
 @contextlib.contextmanager
 def monitor_session():
     """Context manager for clean setup and teardown of monitoring. New feature for me."""
@@ -47,10 +48,11 @@ def monitor_session():
     signal.signal(signal.SIGTERM, exit_handler)
     try:
         print_banner()
-        # Yield is basically a placeholder for the code in the with monitor_session() block, a feature of the context manager. 
+        # Yield is basically a placeholder for the code in the with monitor_session() block, a feature of the context manager.
         yield
     finally:
         print("Monitoring session ended")
+
 
 def print_banner():
     """Displays a welcome banner for the script."""
@@ -64,6 +66,7 @@ def print_banner():
     """
     print(banner)
 
+
 class HealthCheck:
     """
     Monitors health of HTTP endpoints and tracks their availability.
@@ -72,7 +75,7 @@ class HealthCheck:
     def __init__(self, input_file: str, test_interval: int):
         """
         Init the health check monitor.
-        
+
         Args:
             input_file: Path to YAML configuration file with endpoints
             test_interval: Interval between health checks in seconds
@@ -80,7 +83,7 @@ class HealthCheck:
         self.input_file = input_file
         self.test_interval = test_interval
         self.endpoints = self.collect_endpoints()
-        # Using defaultdict as a clean way to init the results, don't need to check if a key exists before adding later. 
+        # Using defaultdict as a clean way to init the results, don't need to check if a key exists before adding later.
         self.results = defaultdict(lambda: {"requests": 0, "UP": 0})
         self.run_count = 0
 
@@ -99,8 +102,8 @@ class HealthCheck:
         """
         Extract domain from URL.
         """
-        
-        # TODO The exercise's example output includes the subdomain, but the prompt only asks for the domain. Need to make a decision here. 
+
+        # TODO The exercise's example output includes the subdomain, but the prompt only asks for the domain. Need to make a decision here.
         domain_object = urlparse(url)
         return domain_object.netloc
 
@@ -108,7 +111,7 @@ class HealthCheck:
         """
         Load and validate endpoint configurations from YAML file.
         """
-        
+
         logging.info(f"Collecting endpoints from {self.input_file}")
         # Open the input file and attempt to load it with the YAML library.
         try:
@@ -122,8 +125,10 @@ class HealthCheck:
 
                 # TODO I'm currently using get_domain twice in this file, and this one is only for the INFO log. Remove?
                 domains = set(self.get_domain(item["url"]) for item in endpoints_object)
-                logging.info(f"Loaded {len(endpoints_object)} endpoints across {len(domains)} domains")
-                
+                logging.info(
+                    f"Loaded {len(endpoints_object)} endpoints across {len(domains)} domains"
+                )
+
                 return endpoints_object
 
         except Exception as e:
@@ -134,26 +139,26 @@ class HealthCheck:
         """
         Calculate and display availability percentages for all domains on exit.
         """
-        
+
         # For each domain we saw, calculate the percentage of successful requests.
         for domain in self.results:
             total_requests = self.results[domain]["requests"]
             up_requests = self.results[domain]["UP"]
             percentage = (up_requests / total_requests) * 100
-            # Exercise asked for this specific output format. 
+            # Exercise asked for this specific output format.
             print(f"{domain} has {round(percentage)}% availability percentage")
 
     def begin_schedule(self):
         """
         Start the health check and run every configured interval until stopped.
         """
-        
+
         logging.info(f"Starting health checks every {self.test_interval} seconds")
 
-        # Schedule library is new to me, very cool. Handles the queueing/timing. 
+        # Schedule library is new to me, very cool. Handles the queueing/timing.
         schedule.every(self.test_interval).seconds.do(self.begin_health_check)
 
-        # Runs the "schedule" until my should_exit condition is met. 
+        # Runs the "schedule" until my should_exit condition is met.
         # Right, should_exit is only set to True on SIGINT or SIGTERM, so it will run indefinitely.
         while not should_exit:
             try:
@@ -186,7 +191,7 @@ class HealthCheck:
                 # The latency property comes as a timedelta object, so I have to convert it to milliseconds.
                 latency = response.elapsed.total_seconds() * 1000
 
-                # If it's a 2xx and latency under 500ms, we call that a success. 
+                # If it's a 2xx and latency under 500ms, we call that a success.
                 if (200 <= response.status_code <= 299) and (latency < 500):
                     # We're counting total requests so we can do the percentage math later.
                     self.results[domain]["requests"] += 1
@@ -204,13 +209,14 @@ class HealthCheck:
                     logging.debug(f"Response received: {response.json}")
                     logging.debug(response.json)
 
-            # TODO Registering any exception as a "DOWN" request means absolute faith that my code isn't the failure point. Should be reworked. 
+            # TODO Registering any exception as a "DOWN" request means absolute faith that my code isn't the failure point. Should be reworked.
             except Exception as e:
                 self.results[domain]["requests"] += 1
                 logging.error(f"ERROR: {url} - {str(e)}")
 
         logging.info(f"Completed health check cycle {self.run_count + 1}")
         self.run_count += 1
+
 
 def parse_args():
     """
@@ -237,25 +243,27 @@ def parse_args():
         help="Enable verbose informational logging",
         default=False,
     )
-    
+
     return parser.parse_args()
+
 
 def main():
     """Main entry point for the endpoint health monitor."""
-    
+
     # Parse command line arguments
     args = parse_args()
 
     # Setup logging
     setup_logging(args.info_logs)
 
-    # Use context manager for setup/cleanup. New to me! Very cool. 
+    # Use context manager for setup/cleanup. New to me! Very cool.
     with monitor_session():
-        
+
         # Init the health check class, which parses the YAML file input and does further setup.
         health_check = HealthCheck(args.endpoints, args.test_interval)
         # The beating heart (pun intended) of the script.
         health_check.begin_schedule()
+
 
 if __name__ == "__main__":
     sys.exit(main())
