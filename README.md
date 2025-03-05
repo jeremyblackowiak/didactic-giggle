@@ -1,60 +1,39 @@
-# # didactic-giggle
+# didactic-giggle
 
-Welcome to `didactic-giggle`! This project is is a take home exercise with a goal of creating an HTTP endpoint "health checker," with various conditions included. Right now this is just my boilerplate README stuff, plus what I think I'll include. 
-
-scratch pad
-- python
-- poetry? 
-- library for parsing yaml
-- input validation for various fields?
-    - prompt points out "you may assume" it's valid. don't worry for now. 
-    - assume GET if no method
-- tests / linting
-
-- flow
-    - parse yaml into objects, endpoints / domains classes?
-    - every 15 seconds, perform requests against each endpoint
-    - Process responses into 2 categories, UP or DOWN.
-        - UP is 
-            - 2xx
-            - latency < 500ms 
-        - store in what data structure? 
-            - elaboration of the "internal program state" 
-    - exit is manual
-    - results calculation 
-        - percentage of UP requests per DOMAIN, not endpoint
-        - results need to be collated per DOMAIN. 
-    - log results to console after every test cycle, 15 seconds
-        - follow prompts template for the log messages
-        - log test cycle time start/end?
-        - round floats to whole percentage
-
-- what should timeout be? 
-- stretch goal -- on exit, print the combined results? might hit a memory issue
-- probably put in docker container 
-
+Welcome to `didactic-giggle`! This project is a take-home exercise with a goal of creating an HTTP endpoint "health checker," with various conditions included.
 
 ## Overview
 
 ### Tools Used
 
 - **ASDF:** Toolchain installation management.
-
+- **Poetry:** Package and virtual environment management.
+- **Python:** Everyone's best friend.
+- **Python Libraries:** 
+    - **Requests:** For making HTTP requests.
+    - **PyYAML:** For parsing YAML configuration files.
+    - **Schedule:** For scheduling health checks.
+    - **Logbook:** For logging.
+    - **Pytest** For unit tests. 
 
 ### Things I'm Still Figuring Out
 
+- **Edge Cases:** Handling various edge cases such as bad URLs, slow endpoints, and down endpoints.
+- **Improved Logging:** Enhancing logging to include more detailed information.
+- **Error Handling:** Improving error handling to ensure the script is robust.
 
 ### What I'd Do With More Time
 
+- **Docker Support:** Create a Dockerfile to run the script in a container.
+- **Enhanced Validation:** Add more validation for the input YAML configuration file.
+- **Configuration Options:** Allow more configuration options for the health checks.
 
 ## Prerequisites
 
 Before you begin, ensure you have the following:
 
 - **Local Machine:** A *nix machine with Docker for Desktop or Rancher installed, if running locally.
-
-- **ASDF:** Installed. Follow the instructions on the [ASDF GitHub page](https://github.com/asdf-vm/asdf) to install it.
-
+- **ASDF:** Installed. Follow the instructions on the [ASDF GitHub page](https://github.com/asdf-vm/asdf) to install it. Using homebrew, you can run `brew install asdf`. 
 
 ## First Time Setup, Metadata and Infrastructure
 
@@ -66,8 +45,11 @@ Before you begin, ensure you have the following:
 
 2. Run `asdf install`.
 
+3. Run `poetry install`.
 
+4. Update the `src/sample_input.yaml` file with your endpoints to monitor.
 
-### Local App Deployment
+5. Run the script with the following command:
 
-
+   ```bash
+   poetry run python src/main.py --endpoints src/sample_input.yaml
