@@ -16,17 +16,12 @@ from urllib.parse import urlparse
 import schedule
 import contextlib
 from collections import defaultdict
-from typing import Dict, Optional, Any, List
 from config import DEFAULT_TEST_INTERVAL, setup_logging
 
 
-# TODO improve error handling - still need more cleanup, logging too.
-# TODO comments for functions
-# TODO use config.py? 
-# TODO split some stuff out into separate files, potentially
-# TODO test
+# TODO test file
+# TODO check that info logs will work when asked for. 
 # TODO run via Docker container
-# TODO cool ASCII art on start/finish
 # TODO edge cases. What if the URL is bad? What if the endpoint is down? What if the endpoint is slow? What if it has 0 entries?
 
 test_mode = True
@@ -226,6 +221,7 @@ def parse_args():
         "--endpoints",
         type=str,
         required=True,
+        # TODO import OS and set a default absolute path to the sample_input.yaml
         help="Path to YAML file with endpoints to monitor",
     )
     parser.add_argument(
