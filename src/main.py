@@ -52,6 +52,7 @@ def monitor_session():
     signal.signal(signal.SIGTERM, exit_handler)
     try:
         print_banner()
+        # Yield is basically a placeholder for the code in the with monitor_session() block, a feature of the context manager. 
         yield
     finally:
         print("Monitoring session ended")
@@ -84,6 +85,7 @@ class HealthCheck:
         self.input_file = input_file
         self.test_interval = test_interval
         self.endpoints = self.collect_endpoints()
+        # Using defaultdict as a clean way to init the results, don't need to check if a key exists before adding later. 
         self.results = defaultdict(lambda: {"requests": 0, "UP": 0})
         self.run_count = 0
 
@@ -111,7 +113,9 @@ class HealthCheck:
         """
         Load and validate endpoint configurations from YAML file.
         """
+        
         logging.info(f"Collecting endpoints from {self.input_file}")
+        # Open the input file and attempt to load it with the YAML library.
         try:
             with open(self.input_file, "r") as endpoints_file:
                 # Load the YAML file.
@@ -121,6 +125,7 @@ class HealthCheck:
                 for endpoint_config_item in endpoints_object:
                     self.validate_input(endpoint_config_item)
 
+                # TODO I'm currently using get_domain twice in this file, and this one is only for the INFO log. Remove?
                 domains = set(self.get_domain(item["url"]) for item in endpoints_object)
                 logging.info(f"Loaded {len(endpoints_object)} endpoints across {len(domains)} domains")
                 
@@ -229,6 +234,7 @@ def parse_args():
         help=f"Interval between health checks in seconds (default: {DEFAULT_TEST_INTERVAL})",
         default=DEFAULT_TEST_INTERVAL,
     )
+    # TODO Now that I've added DEBUG logs, change this to a log level arg, not just a boolean toggle for info.
     parser.add_argument(
         "--info-logs",
         action="store_true",

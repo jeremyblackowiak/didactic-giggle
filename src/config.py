@@ -4,8 +4,6 @@ Configuration module for HTTP Endpoint Health Monitor.
 Used for default configuration values, logging setup, and other helpers.
 """
 import logging
-from typing import Dict, Any
-
 
 # Default configuration values
 DEFAULT_TEST_INTERVAL = 15
@@ -43,5 +41,6 @@ def setup_logging(verbose: bool = False) -> None:
     # Add handler to logger
     root_logger.addHandler(console_handler)
     
+    # TODO It's not really verbose, should update this and the arg to permit any log level setting. 
     if verbose:
         logging.info("Verbose logging enabled")
