@@ -27,7 +27,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with: 
-          publish: pnpm release --filter=dummy-workflow-b
+          publish: pnpm --filter=dummy-workflow-b release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
