@@ -1,5 +1,11 @@
 # dummy-workflow-b
 
+## 1.0.8
+
+### Patch Changes
+
+- 0828c1a: Big patch
+
 ## 1.0.7
 
 ### Patch Changes
