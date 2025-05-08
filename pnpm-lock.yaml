@@ -4,10 +4,17 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  '@changesets/cli':
-    specifier: ^2.29.3
-    version: 2.29.3
+importers:
+
+  .:
+    dependencies:
+      '@changesets/cli':
+        specifier: ^2.29.3
+        version: 2.29.3
+
+  packages/dummy-package-demo: {}
+
+  packages/health-checker: {}
 
 packages:
 
