@@ -12,9 +12,13 @@ importers:
         specifier: ^2.29.3
         version: 2.29.3
 
+  packages/actions/dummy-action-a: {}
+
   packages/dummy-package-demo: {}
 
   packages/health-checker: {}
+
+  packages/workflows/dummy-workflow-b: {}
 
 packages:
 
