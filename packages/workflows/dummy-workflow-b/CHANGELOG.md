@@ -1,5 +1,11 @@
 # dummy-workflow-b
 
+## 1.0.7
+
+### Patch Changes
+
+- 8a20066: testing again again
+
 ## 1.0.6
 
 ### Patch Changes
