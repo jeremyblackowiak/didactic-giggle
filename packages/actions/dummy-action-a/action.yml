@@ -1,0 +1,70 @@
+name: 'Dummy Action A'
+description: 'A demo composite GitHub Action for demonstration purposes'
+author: 'Demo Team'
+
+inputs:
+  message:
+    description: 'Message to display in the logs'
+    required: true
+    default: 'Hello from Dummy Action A!'
+  timeout:
+    description: 'Timeout in seconds'
+    required: false
+    default: '60'
+  fail-on-error:
+    description: 'Whether to fail the workflow if this action encounters an error'
+    required: false
+    default: 'false'
+
+outputs:
+  result:
+    description: 'The result of the action execution'
+    value: ${{ steps.main.outputs.result }}
+  execution-time:
+    description: 'How long the action took to run'
+    value: ${{ steps.main.outputs.execution-time }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Print input message
+      shell: bash
+      run: echo "Input message: ${{ inputs.message }}"
+    
+    - name: Set up environment
+      shell: bash
+      run: |
+        echo "Setting up environment for Dummy Action A"
+        echo "Timeout set to ${{ inputs.timeout }} seconds"
+    
+    - name: Main action execution
+      id: main
+      shell: bash
+      run: |
+        echo "Starting Dummy Action A execution..."
+        start_time=$(date +%s)
+        
+        # Simulate some work
+        echo "Performing task 1..."
+        sleep 1
+        echo "Performing task 2..."
+        sleep 1
+        echo "Performing task 3..."
+        sleep 1
+        
+        end_time=$(date +%s)
+        execution_time=$((end_time - start_time))
+        echo "Finished execution in ${execution_time} seconds"
+        
+        # Set outputs
+        echo "result=success" >> $GITHUB_OUTPUT
+        echo "execution-time=${execution_time}" >> $GITHUB_OUTPUT
+    
+    - name: Cleanup
+      if: always()
+      shell: bash
+      run: echo "Cleaning up resources..."
+
+branding:
+  icon: 'box'
+  color: 'blue'

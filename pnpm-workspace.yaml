@@ -1,3 +1,6 @@
 packages:
   - '.'
-  - 'packages/*'
+  - 'packages/actions/*'
+  - 'packages/workflows/*'
+  - 'packages/health-checker'
+  - 'packages/dummy-package-demo'

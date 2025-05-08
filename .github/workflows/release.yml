@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Important for tags and history
 
       - name: Install asdf & tools
         uses: asdf-vm/actions/install@v2
@@ -22,6 +24,16 @@ jobs:
         run: pnpm install
 
       - name: Create Release Pull Request
+        id: changesets
         uses: changesets/action@v1
+        with: 
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      # This ensures the tags are pushed properly
+      - name: Push Tags
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: git push --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
