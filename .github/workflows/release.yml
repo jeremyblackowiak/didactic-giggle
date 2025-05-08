@@ -32,8 +32,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           
       # This ensures the tags are pushed properly
+      
       - name: Push Tags
         if: steps.changesets.outputs.hasChangesets == 'false'
         run: git push --follow-tags
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
