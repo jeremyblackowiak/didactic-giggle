@@ -29,7 +29,7 @@ jobs:
         with: 
           publish: pnpm --filter=dummy-workflow-b release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.TEST_GITHUB_TOKEN }}
           
       # This ensures the tags are pushed properly
       
