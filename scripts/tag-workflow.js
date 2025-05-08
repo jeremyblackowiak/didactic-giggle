@@ -22,6 +22,9 @@ const targetWorkflowPath = `.github/workflows/${workflowFileName}`;
 console.log(`Creating tag ${tagName} with only ${workflowFileName}...`);
 
 try {
+  // First, save the content of the workflow file
+  const workflowContent = fs.readFileSync(workflowPath, 'utf8');
+  
   // Create a temporary branch for the tag
   const tempBranch = `temp-release-${pkgName}-${Date.now()}`;
   execSync(`git checkout -b ${tempBranch}`);
@@ -32,8 +35,8 @@ try {
   // Create .github/workflows directory
   execSync('mkdir -p .github/workflows');
   
-  // Copy the workflow file to the expected location
-  fs.copyFileSync(workflowPath, targetWorkflowPath);
+  // Write the workflow content to the expected location
+  fs.writeFileSync(targetWorkflowPath, workflowContent);
   
   // Add the file and commit
   execSync(`git add ${targetWorkflowPath}`);
