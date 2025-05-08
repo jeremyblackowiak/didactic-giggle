@@ -1,5 +1,11 @@
 # dummy-workflow-b
 
+## 1.0.2
+
+### Patch Changes
+
+- 2d8a6af: new changeset
+
 ## 1.0.1
 
 ### Patch Changes
