@@ -1,5 +1,11 @@
 # dummy-workflow-b
 
+## 1.0.3
+
+### Patch Changes
+
+- 77d5de3: more testing lol
+
 ## 1.0.2
 
 ### Patch Changes
